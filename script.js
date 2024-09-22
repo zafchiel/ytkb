@@ -22,7 +22,7 @@
       top: 20px;
       left: 50%;
       transform: translateX(-50%);
-      background-color: rgba(0, 0, 0, 0.7);
+      background-color: rgba(250, 250, 0, 0.7);
       color: white;
       padding: 10px;
       border-radius: 5px;
