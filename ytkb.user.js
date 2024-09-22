@@ -7,9 +7,7 @@
 // @grant        none
 // ==/UserScript==
 
-(function () {
-  'use strict';
-
+(() => {
   const SEEK_TIME = 5; // Seconds to seek forward/backward
   const VOLUME_CHANGE = 5; // Percentage to change volume
 
@@ -58,7 +56,7 @@
     }, 1500);
   }
 
-  document.addEventListener('keydown', function (e) {
+  document.addEventListener('keydown', (e) => {
     // Only trigger if not typing in an input field
     if (e.target.tagName.toLowerCase() !== 'input' && e.target.tagName.toLowerCase() !== 'textarea') {
       const video = document.querySelector('video');
@@ -66,24 +64,33 @@
 
       let handled = true;
       let feedbackMessage = '';
+      const ctrl = e.ctrlKey;
 
       switch (e.key.toLowerCase()) {
-        case 'h': // Rewind
-          video.currentTime = Math.max(0, video.currentTime - SEEK_TIME);
-          feedbackMessage = `Rewound ${SEEK_TIME}s`;
+        case 'h': { // Rewind
+          const seekBackward = ctrl ? SEEK_TIME * 2 : SEEK_TIME;
+          video.currentTime = Math.max(0, video.currentTime - seekBackward);
+          feedbackMessage = `Rewound ${seekBackward}s`;
           break;
-        case 'j': // Volume down
-          video.volume = Math.max(0, video.volume - (VOLUME_CHANGE / 100));
+        }
+        case 'j': { // Volume down
+          const volumeDownChange = ctrl ? VOLUME_CHANGE * 2 : VOLUME_CHANGE;
+          video.volume = Math.max(0, video.volume - (volumeDownChange / 100));
           feedbackMessage = `Volume: ${Math.round(video.volume * 100)}%`;
           break;
-        case 'k': // Volume up
-          video.volume = Math.min(1, video.volume + (VOLUME_CHANGE / 100));
+        }
+        case 'k': { // Volume up
+          const volumeUpChange = ctrl ? VOLUME_CHANGE * 2 : VOLUME_CHANGE;
+          video.volume = Math.min(1, video.volume + (volumeUpChange / 100));
           feedbackMessage = `Volume: ${Math.round(video.volume * 100)}%`;
           break;
-        case 'l': // Forward
-          video.currentTime = Math.min(video.duration, video.currentTime + SEEK_TIME);
-          feedbackMessage = `Forward ${SEEK_TIME}s`;
+        }
+        case 'l': { // Forward
+          const seekForward = ctrl ? SEEK_TIME * 2 : SEEK_TIME;
+          video.currentTime = Math.min(video.duration, video.currentTime + seekForward);
+          feedbackMessage = `Forward ${seekForward}s`;
           break;
+        }
         case 'm': // Mute
           video.muted = !video.muted;
           feedbackMessage = `Muted: ${video.muted ? 'On' : 'Off'}`;
