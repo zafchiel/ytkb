@@ -43,6 +43,7 @@
   }
 
   let uiElement;
+  let video;
 
   // Function to show UI feedback
   function showUIFeedback(message) {
@@ -58,60 +59,66 @@
 
   document.addEventListener('keydown', (e) => {
     // Only trigger if not typing in an input field
-    if (e.target.tagName.toLowerCase() !== 'input' && e.target.tagName.toLowerCase() !== 'textarea') {
-      const video = document.querySelector('video');
-      if (!video) return;
+    if (e.target.tagName.toLowerCase() === 'input' || e.target.tagName.toLowerCase() === 'textarea') {
+      return;
+    }
+    if (!video) {
+      video = document.querySelector('video');
+    };
+    // Video not found
+    if (!video) {
+      return;
+    }
 
-      let handled = true;
-      let feedbackMessage = '';
-      const ctrl = e.ctrlKey;
+    let handled = true;
+    let feedbackMessage = '';
+    const ctrl = e.ctrlKey;
 
-      switch (e.key.toLowerCase()) {
-        case 'h': { // Rewind
-          const seekBackward = ctrl ? SEEK_TIME * 2 : SEEK_TIME;
-          video.currentTime = Math.max(0, video.currentTime - seekBackward);
-          feedbackMessage = `Rewound ${seekBackward}s`;
-          break;
-        }
-        case 'j': { // Volume down
-          const volumeDownChange = ctrl ? VOLUME_CHANGE * 2 : VOLUME_CHANGE;
-          video.volume = Math.max(0, video.volume - (volumeDownChange / 100));
-          feedbackMessage = `Volume: ${Math.round(video.volume * 100)}%`;
-          break;
-        }
-        case 'k': { // Volume up
-          const volumeUpChange = ctrl ? VOLUME_CHANGE * 2 : VOLUME_CHANGE;
-          video.volume = Math.min(1, video.volume + (volumeUpChange / 100));
-          feedbackMessage = `Volume: ${Math.round(video.volume * 100)}%`;
-          break;
-        }
-        case 'l': { // Forward
-          const seekForward = ctrl ? SEEK_TIME * 2 : SEEK_TIME;
-          video.currentTime = Math.min(video.duration, video.currentTime + seekForward);
-          feedbackMessage = `Forward ${seekForward}s`;
-          break;
-        }
-        case 'm': // Mute
-          video.muted = !video.muted;
-          feedbackMessage = `Muted: ${video.muted ? 'On' : 'Off'}`;
-          break;
-        case ',': // Decrease speed
-          video.playbackRate = Math.max(0.25, video.playbackRate - 0.25);
-          feedbackMessage = `Speed: ${video.playbackRate.toFixed(2)}x`;
-          break;
-        case '.': // Increase speed
-          video.playbackRate = Math.min(2.0, video.playbackRate + 0.25);
-          feedbackMessage = `Speed: ${video.playbackRate.toFixed(2)}x`;
-          break;
-        default:
-          handled = false;
+    switch (e.key.toLowerCase()) {
+      case 'h': { // Rewind
+        const seekBackward = ctrl ? SEEK_TIME * 2 : SEEK_TIME;
+        video.currentTime = Math.max(0, video.currentTime - seekBackward);
+        feedbackMessage = `Rewound ${seekBackward}s`;
+        break;
       }
-
-      if (handled) {
-        e.preventDefault();
-        e.stopPropagation();
-        showUIFeedback(feedbackMessage);
+      case 'j': { // Volume down
+        const volumeDownChange = ctrl ? VOLUME_CHANGE * 2 : VOLUME_CHANGE;
+        video.volume = Math.max(0, video.volume - (volumeDownChange / 100));
+        feedbackMessage = `Volume: ${Math.round(video.volume * 100)}%`;
+        break;
       }
+      case 'k': { // Volume up
+        const volumeUpChange = ctrl ? VOLUME_CHANGE * 2 : VOLUME_CHANGE;
+        video.volume = Math.min(1, video.volume + (volumeUpChange / 100));
+        feedbackMessage = `Volume: ${Math.round(video.volume * 100)}%`;
+        break;
+      }
+      case 'l': { // Forward
+        const seekForward = ctrl ? SEEK_TIME * 2 : SEEK_TIME;
+        video.currentTime = Math.min(video.duration, video.currentTime + seekForward);
+        feedbackMessage = `Forward ${seekForward}s`;
+        break;
+      }
+      case 'm': // Mute
+        video.muted = !video.muted;
+        feedbackMessage = `Muted: ${video.muted ? 'On' : 'Off'}`;
+        break;
+      case ',': // Decrease speed
+        video.playbackRate = Math.max(0.25, video.playbackRate - 0.25);
+        feedbackMessage = `Speed: ${video.playbackRate.toFixed(2)}x`;
+        break;
+      case '.': // Increase speed
+        video.playbackRate = Math.min(2.0, video.playbackRate + 0.25);
+        feedbackMessage = `Speed: ${video.playbackRate.toFixed(2)}x`;
+        break;
+      default:
+        handled = false;
+    }
+
+    if (handled) {
+      e.preventDefault();
+      e.stopPropagation();
+      showUIFeedback(feedbackMessage);
     }
   }, true);
 })();
