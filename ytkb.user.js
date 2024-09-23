@@ -56,6 +56,20 @@
     }, 1500);
   }
 
+  // Function to display state of video
+  function displayVideoState(targetElement) {
+    const video = document.querySelector('video');
+    if (!video) {
+      return;
+    }
+    const state = `Duration: ${video.duration.toFixed(2)}s, Volume: ${Math.round(video.volume * 100)}%, Muted: ${video.muted ? 'On' : 'Off'}, Speed: ${video.playbackRate.toFixed(2)}x`;
+    targetElement.textContent = state;
+    targetElement.style.display = 'block';
+    targetElement.style.color = 'white';
+    targetElement.style.fontSize = '22px';
+    targetElement.style.fontWeight = 'bold';
+  }
+
   document.addEventListener('keydown', (e) => {
     // Only trigger if not typing in an input field
     if (e.target.tagName.toLowerCase() === 'input' || e.target.tagName.toLowerCase() === 'textarea') {
@@ -116,6 +130,7 @@
       e.preventDefault();
       e.stopPropagation();
       showUIFeedback(feedbackMessage);
+      displayVideoState(document.getElementById('limited-state'));
     }
   }, true);
 })();
