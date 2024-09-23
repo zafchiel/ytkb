@@ -43,7 +43,6 @@
   }
 
   let uiElement;
-  let video;
 
   // Function to show UI feedback
   function showUIFeedback(message) {
@@ -62,9 +61,7 @@
     if (e.target.tagName.toLowerCase() === 'input' || e.target.tagName.toLowerCase() === 'textarea') {
       return;
     }
-    if (!video) {
-      video = document.querySelector('video');
-    };
+    const video = document.querySelector('video');
     // Video not found
     if (!video) {
       return;
