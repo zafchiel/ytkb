@@ -43,6 +43,7 @@
   }
 
   let uiElement;
+  let stateUpdateInterval;
 
   // Function to show UI feedback
   function showUIFeedback(message) {
@@ -62,12 +63,30 @@
     if (!video) {
       return;
     }
-    const state = `Duration: ${video.duration.toFixed(2)}s, Volume: ${Math.round(video.volume * 100)}%, Muted: ${video.muted ? 'On' : 'Off'}, Speed: ${video.playbackRate.toFixed(2)}x`;
+    const state = `Current: ${Number.parseInt(video.currentTime)}s / ${video.duration.toFixed(2)}s, Volume: ${Math.round(video.volume * 100)}%, Muted: ${video.muted ? 'On' : 'Off'}, Speed: ${video.playbackRate.toFixed(2)}x`;
     targetElement.textContent = state;
     targetElement.style.display = 'block';
     targetElement.style.color = 'white';
     targetElement.style.fontSize = '22px';
     targetElement.style.fontWeight = 'bold';
+  }
+
+  // Function to start updating video state
+  function startVideoStateUpdate() {
+    const stateElement = document.getElementById('limited-state');
+    if (stateElement && !stateUpdateInterval) {
+      stateUpdateInterval = setInterval(() => {
+        displayVideoState(stateElement);
+      }, 1000); // Update every second
+    }
+  }
+
+  // Function to stop updating video state
+  function stopVideoStateUpdate() {
+    if (stateUpdateInterval) {
+      clearInterval(stateUpdateInterval);
+      stateUpdateInterval = null;
+    }
   }
 
   document.addEventListener('keydown', (e) => {
@@ -130,7 +149,15 @@
       e.preventDefault();
       e.stopPropagation();
       showUIFeedback(feedbackMessage);
+      startVideoStateUpdate();
       displayVideoState(document.getElementById('limited-state'));
     }
   }, true);
+
+  // Start updating video state when the page loads
+  window.addEventListener('load', startVideoStateUpdate);
+
+  // Stop updating video state when the page unloads
+  window.addEventListener('unload', stopVideoStateUpdate);
+
 })();
