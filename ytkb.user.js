@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         ytkb
 // @namespace    http://violentmonkey.net/
-// @version      0.1
-// @description  Add custom keyboard shortcuts for YouTube navigation with UI feedback
+// @version      0.2
+// @description  Add custom keyboard shortcuts for YouTube navigation with UI feedback and improved controls
 // @match        https://www.youtube.com/*
 // @grant        none
 // ==/UserScript==
@@ -68,17 +68,31 @@
   // Function to display state of video
   function displayVideoState(targetElement) {
     const video = document.querySelector('video');
-    if (!video) {
-      return;
-    }
-    const state = `Current: ${Number.parseInt(state.currentTime)}s / ${state.duration.toFixed(2)}s, Volume: ${Math.round(state.volume * 100)}%, Muted: ${state.muted ? 'On' : 'Off'}, Speed: ${state.playbackRate.toFixed(2)}x`;
-    targetElement.textContent = state;
+    if (!video) return;
+
+    const formatTime = (seconds) => {
+      const h = Math.floor(seconds / 3600);
+      const m = Math.floor((seconds % 3600) / 60);
+      const s = Math.floor(seconds % 60);
+      return [h, m, s].map(v => v < 10 ? "0" + v : v).filter((v, i) => v !== "00" || i > 0).join(":");
+    };
+
+    const currentTime = formatTime(video.currentTime);
+    const duration = formatTime(video.duration);
+
+    state.currentTime = video.currentTime;
+    state.volume = video.volume;
+    state.muted = video.muted;
+    state.playbackRate = video.playbackRate;
+    state.duration = video.duration;
+
+    const stateText = `${currentTime} / ${duration} | Volume: ${Math.round(state.volume * 100)}% | Muted: ${state.muted ? 'On' : 'Off'} | Speed: ${state.playbackRate.toFixed(2)}x`;
+    targetElement.textContent = stateText;
     targetElement.style.display = 'block';
     targetElement.style.color = 'white';
-    targetElement.style.fontSize = '22px';
+    targetElement.style.fontSize = '16px';
     targetElement.style.fontWeight = 'bold';
-
-    video.volume = state.volume;
+    targetElement.style.textShadow = '1px 1px 2px rgba(0,0,0,0.7)';
   }
 
   // Function to start updating video state
@@ -157,6 +171,33 @@
         video.playbackRate = Math.min(2.0, video.playbackRate + 0.25);
         feedbackMessage = `Speed: ${video.playbackRate.toFixed(2)}x`;
         state.playbackRate = video.playbackRate;
+        break;
+      case 'i': // Toggle Picture-in-Picture
+        if (document.pictureInPictureElement) {
+          document.exitPictureInPicture();
+          feedbackMessage = 'Picture-in-Picture: Off';
+        } else if (document.pictureInPictureEnabled) {
+          video.requestPictureInPicture();
+          feedbackMessage = 'Picture-in-Picture: On';
+        }
+        break;
+      case 'f': // Toggle fullscreen
+        if (document.fullscreenElement) {
+          document.exitFullscreen();
+          feedbackMessage = 'Fullscreen: Off';
+        } else {
+          video.requestFullscreen();
+          feedbackMessage = 'Fullscreen: On';
+        }
+        break;
+      case ' ': // Play/Pause
+        if (video.paused) {
+          video.play();
+          feedbackMessage = 'Playing';
+        } else {
+          video.pause();
+          feedbackMessage = 'Paused';
+        }
         break;
       default:
         handled = false;
