@@ -19,8 +19,18 @@
     duration: 0,
   };
 
-  // Function to create and insert UI element
-  function createUIElement() {
+  // Helper functions
+  const formatTime = (seconds) => {
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = Math.floor(seconds % 60);
+    return [h, m, s].map(v => v < 10 ? "0" + v : v).filter((v, i) => v !== "00" || i > 0).join(":");
+  };
+
+  const getVideo = () => document.querySelector('video');
+
+  // UI element creation and management
+  const createUIElement = () => {
     const uiElement = document.createElement('div');
     uiElement.id = 'ytkb-ui';
     uiElement.style.cssText = `
@@ -29,32 +39,26 @@
       left: 50%;
       transform: translateX(-50%);
       background-color: rgba(0, 0, 0, 0.7);
-      color: gray;
+      color: white;
       padding: 10px;
       border-radius: 5px;
       font-family: Roboto, Arial, sans-serif;
-      font-size: 14px;
+      font-size: 16px;
+      font-weight: bold;
       z-index: 9999;
       display: none;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
     `;
 
-    // Find YouTube's player container and insert our UI
-    const playerContainer = document.getElementById('movie_player');
-    if (playerContainer) {
-      playerContainer.appendChild(uiElement);
-    } else {
-      // Fallback to body if player container is not found
-      document.body.appendChild(uiElement);
-    }
-
+    const playerContainer = document.getElementById('movie_player') || document.body;
+    playerContainer.appendChild(uiElement);
     return uiElement;
-  }
+  };
 
   let uiElement;
   let stateUpdateInterval;
 
-  // Function to show UI feedback
-  function showUIFeedback(message) {
+  const showUIFeedback = (message) => {
     if (!uiElement) {
       uiElement = createUIElement();
     }
@@ -63,66 +67,44 @@
     setTimeout(() => {
       uiElement.style.display = 'none';
     }, 1500);
-  }
+  };
 
-  // Function to display state of video
-  function displayVideoState(targetElement) {
-    const video = document.querySelector('video');
+  // Video state management
+  const updateVideoState = () => {
+    const video = getVideo();
     if (!video) return;
 
-    const formatTime = (seconds) => {
-      const h = Math.floor(seconds / 3600);
-      const m = Math.floor((seconds % 3600) / 60);
-      const s = Math.floor(seconds % 60);
-      return [h, m, s].map(v => v < 10 ? "0" + v : v).filter((v, i) => v !== "00" || i > 0).join(":");
-    };
+    Object.assign(state, {
+      currentTime: video.currentTime,
+      volume: video.volume,
+      muted: video.muted,
+      playbackRate: video.playbackRate,
+      duration: video.duration,
+    });
 
-    const currentTime = formatTime(video.currentTime);
-    const duration = formatTime(video.duration);
+    const stateText = `${formatTime(state.currentTime)} / ${formatTime(state.duration)} | Volume: ${Math.round(state.volume * 100)}% | Muted: ${state.muted ? 'On' : 'Off'} | Speed: ${state.playbackRate.toFixed(2)}x`;
+    showUIFeedback(stateText);
+  };
 
-    state.currentTime = video.currentTime;
-    state.volume = video.volume;
-    state.muted = video.muted;
-    state.playbackRate = video.playbackRate;
-    state.duration = video.duration;
-
-    const stateText = `${currentTime} / ${duration} | Volume: ${Math.round(state.volume * 100)}% | Muted: ${state.muted ? 'On' : 'Off'} | Speed: ${state.playbackRate.toFixed(2)}x`;
-    targetElement.textContent = stateText;
-    targetElement.style.display = 'block';
-    targetElement.style.color = 'white';
-    targetElement.style.fontSize = '16px';
-    targetElement.style.fontWeight = 'bold';
-    targetElement.style.textShadow = '1px 1px 2px rgba(0,0,0,0.7)';
-  }
-
-  // Function to start updating video state
-  function startVideoStateUpdate() {
-    const stateElement = document.getElementById('limited-state');
-    if (stateElement && !stateUpdateInterval) {
-      stateUpdateInterval = setInterval(() => {
-        displayVideoState(stateElement);
-      }, 1000); // Update every second
+  const startVideoStateUpdate = () => {
+    if (!stateUpdateInterval) {
+      stateUpdateInterval = setInterval(updateVideoState, 1000);
     }
-  }
+  };
 
-  // Function to stop updating video state
-  function stopVideoStateUpdate() {
-    if (stateUpdateInterval) {
-      clearInterval(stateUpdateInterval);
-      stateUpdateInterval = null;
-    }
-  }
+  const stopVideoStateUpdate = () => {
+    clearInterval(stateUpdateInterval);
+    stateUpdateInterval = null;
+  };
 
-  document.addEventListener('keydown', (e) => {
-    // Only trigger if not typing in an input field
+  // Keyboard event handling
+  const handleKeydown = (e) => {
     if (e.target.tagName.toLowerCase() === 'input' || e.target.tagName.toLowerCase() === 'textarea') {
       return;
     }
-    const video = document.querySelector('video');
-    // Video not found
-    if (!video) {
-      return;
-    }
+
+    const video = getVideo();
+    if (!video) return;
 
     let handled = true;
     let feedbackMessage = '';
@@ -207,15 +189,12 @@
       e.preventDefault();
       e.stopPropagation();
       showUIFeedback(feedbackMessage);
-      startVideoStateUpdate();
-      displayVideoState(document.getElementById('limited-state'));
+      updateVideoState();
     }
-  }, true);
+  };
 
-  // Start updating video state when the page loads
+  // Event listeners
+  document.addEventListener('keydown', handleKeydown, true);
   window.addEventListener('load', startVideoStateUpdate);
-
-  // Stop updating video state when the page unloads
   window.addEventListener('unload', stopVideoStateUpdate);
-
 })();
