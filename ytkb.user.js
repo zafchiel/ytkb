@@ -21,10 +21,16 @@
 
   // Helper functions
   const formatTime = (seconds) => {
-    const h = Math.floor(seconds / 3600);
-    const m = Math.floor((seconds % 3600) / 60);
-    const s = Math.floor(seconds % 60);
-    return [h, m, s].map(v => v < 10 ? "0" + v : v).filter((v, i) => v !== "00" || i > 0).join(":");
+    const date = new Date(seconds * 1000);
+    const parts = [
+      date.getUTCHours(),
+      date.getUTCMinutes(),
+      date.getUTCSeconds(),
+    ];
+    return parts
+      .map(part => part.toString().padStart(2, '0'))
+      .filter((part, index) => part !== '00' || index > 0)
+      .join(':');
   };
 
   const getVideo = () => document.querySelector('video');
