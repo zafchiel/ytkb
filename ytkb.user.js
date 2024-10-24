@@ -132,28 +132,32 @@
     const ctrl = e.ctrlKey;
 
     switch (e.key.toLowerCase()) {
-      case 'h': { // Rewind
+      case 'h':
+      case 'arrowleft': { // Rewind
         const seekBackward = ctrl ? SEEK_TIME * 2 : SEEK_TIME;
         video.currentTime = Math.max(0, video.currentTime - seekBackward);
         feedbackMessage = `Rewound ${seekBackward}s`;
         state.currentTime = video.currentTime;
         break;
       }
-      case 'j': { // Volume down
+      case 'j':
+      case 'arrowdown': { // Volume down
         const volumeDownChange = ctrl ? VOLUME_CHANGE * 2 : VOLUME_CHANGE;
         video.volume = Math.max(0, video.volume - (volumeDownChange / 100));
         feedbackMessage = `Volume: ${Math.round(video.volume * 100)}%`;
         state.volume = video.volume;
         break;
       }
-      case 'k': { // Volume up
+      case 'k':
+      case 'arrowup': { // Volume up
         const volumeUpChange = ctrl ? VOLUME_CHANGE * 2 : VOLUME_CHANGE;
         video.volume = Math.min(1, video.volume + (volumeUpChange / 100));
         feedbackMessage = `Volume: ${Math.round(video.volume * 100)}%`;
         state.volume = video.volume;
         break;
       }
-      case 'l': { // Forward
+      case 'l':
+      case 'arrowright': { // Forward
         const seekForward = ctrl ? SEEK_TIME * 2 : SEEK_TIME;
         video.currentTime = Math.min(video.duration, video.currentTime + seekForward);
         feedbackMessage = `Forward ${seekForward}s`;
