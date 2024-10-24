@@ -193,15 +193,15 @@
           feedbackMessage = 'Fullscreen: On';
         }
         break;
-      case ' ': // Play/Pause
-          if (video.paused) {
-            video.play();
-            feedbackMessage = 'Playing';
-          } else {
-            video.pause();
-            feedbackMessage = 'Paused';
-          }
-      break;
+      // case ' ': // Play/Pause
+      //     if (video.paused) {
+      //       video.play();
+      //       feedbackMessage = 'Playing';
+      //     } else {
+      //       video.pause();
+      //       feedbackMessage = 'Paused';
+      //     }
+      // break;
       default:
         handled = false;
     }
