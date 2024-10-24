@@ -48,18 +48,33 @@
       color: white;
       padding: 10px;
       border-radius: 5px;
-      font-family: Roboto, Arial, sans-serif;
       font-size: 16px;
-      font-weight: bold;
       z-index: 9999;
       display: none;
       text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+      font-family: monospace;
     `;
 
     const playerContainer = document.getElementById('movie_player') || document.body;
     playerContainer.appendChild(uiElement);
     return uiElement;
   };
+
+  const createCurrentStateElement = () => {
+    const currentStateElement = document.createElement('div');
+    currentStateElement.id = 'ytkb-current-state';
+    currentStateElement.style.cssText = `
+      padding: 8px 12px;
+      background-color: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      margin-top: 12px;
+      color: white;
+      border-radius: 5px;
+      font-size: 14px;
+      font-family: monospace;
+    `;
+    return currentStateElement;
+  }
 
   let uiElement;
   let stateUpdateInterval;
@@ -89,7 +104,7 @@
     });
 
     const stateText = `${formatTime(state.currentTime)} / ${formatTime(state.duration)} | Volume: ${Math.round(state.volume * 100)}% | Muted: ${state.muted ? 'On' : 'Off'} | Speed: ${state.playbackRate.toFixed(2)}x`;
-    showUIFeedback(stateText);
+    document.getElementById("ytkb-current-state").textContent = stateText;
   };
 
   const startVideoStateUpdate = () => {
@@ -203,4 +218,20 @@
   document.addEventListener('keydown', handleKeydown, true);
   window.addEventListener('load', startVideoStateUpdate);
   window.addEventListener('unload', stopVideoStateUpdate);
+  
+  let stateElementCreated = false;
+  const interval = setInterval(() => {
+    if (stateElementCreated) {
+      clearInterval(interval);
+      return;
+    }
+
+    const topRow = document.getElementById("below");
+    if (topRow) {
+      topRow.insertBefore(createCurrentStateElement(), topRow.firstChild);
+      stateElementCreated = true;
+    }
+
+  }, 500);
+  
 })();
