@@ -65,7 +65,7 @@
     currentStateElement.id = 'ytkb-current-state';
     currentStateElement.style.cssText = `
       padding: 8px 12px;
-      background-color: rgba(255, 255, 255, 0.1);
+      background-color: rgba(255, 255, 255, 0.05);
       backdrop-filter: blur(10px);
       margin-top: 12px;
       color: white;
@@ -194,14 +194,14 @@
         }
         break;
       case ' ': // Play/Pause
-        if (video.paused) {
-          video.play();
-          feedbackMessage = 'Playing';
-        } else {
-          video.pause();
-          feedbackMessage = 'Paused';
-        }
-        break;
+          if (video.paused) {
+            video.play();
+            feedbackMessage = 'Playing';
+          } else {
+            video.pause();
+            feedbackMessage = 'Paused';
+          }
+      break;
       default:
         handled = false;
     }
@@ -215,7 +215,9 @@
   };
 
   // Event listeners
-  document.addEventListener('keydown', handleKeydown, true);
+  document.addEventListener('keydown', handleKeydown, {
+    capture: true,
+  });
   window.addEventListener('load', startVideoStateUpdate);
   window.addEventListener('unload', stopVideoStateUpdate);
   
