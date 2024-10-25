@@ -180,6 +180,11 @@
         feedbackMessage = `Speed: ${video.playbackRate.toFixed(2)}x`;
         state.playbackRate = video.playbackRate;
         break;
+      case 'z': // Reset speed
+        video.playbackRate = 1.0;
+        feedbackMessage = `Speed: ${video.playbackRate.toFixed(2)}x`;
+        state.playbackRate = video.playbackRate;
+        break;
       case 'i': // Toggle Picture-in-Picture
         if (document.pictureInPictureElement) {
           document.exitPictureInPicture();
