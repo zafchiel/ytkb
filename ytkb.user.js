@@ -11,6 +11,8 @@
 (() => {
   const SEEK_TIME = 5; // Seconds to seek forward/backward
   const VOLUME_CHANGE = 5; // Percentage to change volume
+  const MAX_SPEED = 3.0; // Maximum playback speed
+  const MIN_SPEED = 0.1; // Minimum playback speed
 
   const state = {
     currentTime: 0,
@@ -171,12 +173,12 @@
         state.muted = video.muted;
         break;
       case ',': // Decrease speed
-        video.playbackRate = Math.max(0.25, video.playbackRate - 0.25);
+        video.playbackRate = Math.max(MIN_SPEED, video.playbackRate - 0.25);
         feedbackMessage = `Speed: ${video.playbackRate.toFixed(2)}x`;
         state.playbackRate = video.playbackRate;
         break;
       case '.': // Increase speed
-        video.playbackRate = Math.min(2.0, video.playbackRate + 0.25);
+        video.playbackRate = Math.min(MAX_SPEED, video.playbackRate + 0.25);
         feedbackMessage = `Speed: ${video.playbackRate.toFixed(2)}x`;
         state.playbackRate = video.playbackRate;
         break;
