@@ -189,13 +189,7 @@
         }
         break;
       case 'f': // Toggle fullscreen
-        if (document.fullscreenElement) {
-          document.exitFullscreen();
-          feedbackMessage = 'Fullscreen: Off';
-        } else {
-          video.requestFullscreen();
-          feedbackMessage = 'Fullscreen: On';
-        }
+        document.querySelector(".ytp-fullscreen-button").dispatchEvent(new MouseEvent('click'));
         break;
       // case ' ': // Play/Pause
       //     if (video.paused) {
