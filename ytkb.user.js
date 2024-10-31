@@ -75,9 +75,10 @@
       border-radius: 5px;
       font-size: 14px;
       font-family: monospace;
+      width: fit-content;
     `;
     return currentStateElement;
-  }
+  };
 
   let uiElement;
   let stateUpdateInterval;
@@ -226,7 +227,7 @@
   });
   window.addEventListener('load', startVideoStateUpdate);
   window.addEventListener('unload', stopVideoStateUpdate);
-  
+
   let stateElementCreated = false;
   const interval = setInterval(() => {
     if (stateElementCreated) {
@@ -241,5 +242,5 @@
     }
 
   }, 500);
-  
+
 })();
