@@ -31,17 +31,17 @@
       date.getUTCSeconds(),
     ];
     return parts
-      .map(part => part.toString().padStart(2, '0'))
-      .filter((part, index) => part !== '00' || index > 0)
-      .join(':');
+      .map((part) => part.toString().padStart(2, "0"))
+      .filter((part, index) => part !== "00" || index > 0)
+      .join(":");
   };
 
-  const getVideo = () => document.querySelector('video');
+  const getVideo = () => document.querySelector("video");
 
   // UI element creation and management
   const createUIElement = () => {
-    const uiElement = document.createElement('div');
-    uiElement.id = 'ytkb-ui';
+    const uiElement = document.createElement("div");
+    uiElement.id = "ytkb-ui";
     uiElement.style.cssText = `
       position: absolute;
       top: 20px;
@@ -58,14 +58,15 @@
       font-family: monospace;
     `;
 
-    const playerContainer = document.getElementById('movie_player') || document.body;
+    const playerContainer =
+      document.getElementById("movie_player") || document.body;
     playerContainer.appendChild(uiElement);
     return uiElement;
   };
 
   const createCurrentStateElement = () => {
-    const currentStateElement = document.createElement('div');
-    currentStateElement.id = 'ytkb-current-state';
+    const currentStateElement = document.createElement("div");
+    currentStateElement.id = "ytkb-current-state";
     currentStateElement.style.cssText = `
       padding: 8px 12px;
       background-color: rgba(255, 255, 255, 0.05);
@@ -88,9 +89,9 @@
       uiElement = createUIElement();
     }
     uiElement.textContent = message;
-    uiElement.style.display = 'block';
+    uiElement.style.display = "block";
     setTimeout(() => {
-      uiElement.style.display = 'none';
+      uiElement.style.display = "none";
     }, 1500);
   };
 
@@ -107,7 +108,11 @@
       duration: video.duration,
     });
 
-    const stateText = `${formatTime(state.currentTime)} / ${formatTime(state.duration)} | Volume: ${Math.round(state.volume * 100)}% | Muted: ${state.muted ? 'On' : 'Off'} | Speed: ${state.playbackRate.toFixed(2)}x`;
+    const stateText = `${formatTime(state.currentTime)} / ${formatTime(
+      state.duration
+    )} | Volume: ${Math.round(state.volume * 100)}% | Muted: ${
+      state.muted ? "On" : "Off"
+    } | Speed: ${state.playbackRate.toFixed(2)}x`;
     document.getElementById("ytkb-current-state").textContent = stateText;
   };
 
@@ -124,7 +129,10 @@
 
   // Keyboard event handling
   const handleKeydown = (e) => {
-    if (e.target.tagName.toLowerCase() === 'input' || e.target.tagName.toLowerCase() === 'textarea') {
+    if (
+      e.target.tagName.toLowerCase() === "input" ||
+      e.target.tagName.toLowerCase() === "textarea"
+    ) {
       return;
     }
 
@@ -132,73 +140,87 @@
     if (!video) return;
 
     let handled = true;
-    let feedbackMessage = '';
+    let feedbackMessage = "";
     const ctrl = e.ctrlKey;
 
     switch (e.key.toLowerCase()) {
-      case 'h':
-      case 'arrowleft': { // Rewind
+      case "h":
+      case "arrowleft": {
+        // Rewind
         const seekBackward = ctrl ? SEEK_TIME * 2 : SEEK_TIME;
         video.currentTime = Math.max(0, video.currentTime - seekBackward);
         feedbackMessage = `Rewound ${seekBackward}s`;
         state.currentTime = video.currentTime;
         break;
       }
-      case 'j':
-      case 'arrowdown': { // Volume down
+      case "j":
+      case "arrowdown": {
+        // Volume down
         const volumeDownChange = ctrl ? VOLUME_CHANGE * 2 : VOLUME_CHANGE;
-        video.volume = Math.max(0, video.volume - (volumeDownChange / 100));
-        feedbackMessage = `Volume: ${Math.round(video.volume * 100)}%`;
-        state.volume = video.volume;
+        const newVolume = Math.max(0, video.volume - volumeDownChange / 100);
+        video.volume = newVolume;
+        feedbackMessage = `Volume: ${Math.round(newVolume * 100)}%`;
+        state.volume = newVolume;
+        saveVolumeToLocalStorage(newVolume, video.muted);
         break;
       }
-      case 'k':
-      case 'arrowup': { // Volume up
+      case "k":
+      case "arrowup": {
+        // Volume up
         const volumeUpChange = ctrl ? VOLUME_CHANGE * 2 : VOLUME_CHANGE;
-        video.volume = Math.min(1, video.volume + (volumeUpChange / 100));
-        feedbackMessage = `Volume: ${Math.round(video.volume * 100)}%`;
-        state.volume = video.volume;
+        const newVolume = Math.min(1, video.volume + volumeUpChange / 100);
+        video.volume = newVolume;
+        feedbackMessage = `Volume: ${Math.round(newVolume * 100)}%`;
+        state.volume = newVolume;
+        saveVolumeToLocalStorage(newVolume, video.muted);
         break;
       }
-      case 'l':
-      case 'arrowright': { // Forward
+      case "l":
+      case "arrowright": {
+        // Forward
         const seekForward = ctrl ? SEEK_TIME * 2 : SEEK_TIME;
-        video.currentTime = Math.min(video.duration, video.currentTime + seekForward);
+        video.currentTime = Math.min(
+          video.duration,
+          video.currentTime + seekForward
+        );
         feedbackMessage = `Forward ${seekForward}s`;
         state.currentTime = video.currentTime;
         break;
       }
-      case 'm': // Mute
+      case "m": // Mute
         video.muted = !video.muted;
-        feedbackMessage = `Muted: ${video.muted ? 'On' : 'Off'}`;
+        feedbackMessage = `Muted: ${video.muted ? "On" : "Off"}`;
         state.muted = video.muted;
+        saveVolumeToLocalStorage(video.volume, video.muted);
         break;
-      case ',': // Decrease speed
+      case ",": // Decrease speed
         video.playbackRate = Math.max(MIN_SPEED, video.playbackRate - 0.25);
         feedbackMessage = `Speed: ${video.playbackRate.toFixed(2)}x`;
         state.playbackRate = video.playbackRate;
         break;
-      case '.': // Increase speed
+      case ".": // Increase speed
         video.playbackRate = Math.min(MAX_SPEED, video.playbackRate + 0.25);
         feedbackMessage = `Speed: ${video.playbackRate.toFixed(2)}x`;
         state.playbackRate = video.playbackRate;
         break;
-      case 'z': // Reset speed
+      case "z": // Reset speed
         video.playbackRate = 1.0;
         feedbackMessage = `Speed: ${video.playbackRate.toFixed(2)}x`;
         state.playbackRate = video.playbackRate;
         break;
-      case 'i': // Toggle Picture-in-Picture
+      case "i": // Toggle Picture-in-Picture
         if (document.pictureInPictureElement) {
           document.exitPictureInPicture();
-          feedbackMessage = 'Picture-in-Picture: Off';
+          feedbackMessage = "Picture-in-Picture: Off";
         } else if (document.pictureInPictureEnabled) {
           video.requestPictureInPicture();
-          feedbackMessage = 'Picture-in-Picture: On';
+          feedbackMessage = "Picture-in-Picture: On";
         }
         break;
-      case 'f': // Toggle fullscreen
-        document.querySelector(".ytp-fullscreen-button").dispatchEvent(new MouseEvent('click'));
+      case "f": // Toggle fullscreen
+        document
+          .querySelector(".ytp-fullscreen-button")
+          .dispatchEvent(new MouseEvent("click"));
         break;
       // case ' ': // Play/Pause
       //     if (video.paused) {
@@ -221,12 +243,23 @@
     }
   };
 
+  const storedVolume = loadVolumeFromLocalStorage();
+  if (storedVolume) {
+    const video = getVideo();
+    if (video) {
+      state.volume = storedVolume.volume;
+      state.muted = storedVolume.muted;
+      video.volume = storedVolume.volume;
+      video.muted = storedVolume.muted;
+    }
+  }
+
   // Event listeners
-  document.addEventListener('keydown', handleKeydown, {
+  document.addEventListener("keydown", handleKeydown, {
     capture: true,
   });
-  window.addEventListener('load', startVideoStateUpdate);
-  window.addEventListener('unload', stopVideoStateUpdate);
+  window.addEventListener("load", startVideoStateUpdate);
+  window.addEventListener("unload", stopVideoStateUpdate);
 
   let stateElementCreated = false;
   const interval = setInterval(() => {
@@ -240,7 +273,31 @@
       topRow.insertBefore(createCurrentStateElement(), topRow.firstChild);
       stateElementCreated = true;
     }
-
   }, 500);
-
 })();
+
+function loadVolumeFromLocalStorage() {
+  try {
+    const stored = localStorage.getItem("yt-player-colume");
+    if (stored) {
+      const { data } = JSON.parse(stored);
+      return JSON.parse(data);
+    }
+  } catch (error) {
+    console.error(error);
+  }
+  return null;
+}
+
+function saveVolumeToLocalStorage(volume, muted) {
+  const data = {
+    volume,
+    muted,
+  };
+  const storageObj = {
+    data: JSON.stringify(data),
+    expiration: Date.now() + 1000 * 60 * 60 * 24 * 30, // 30 days
+    creation: Date.now(),
+  };
+  localStorage.setItem("yt-player-colume", JSON.stringify(storageObj));
+}
