@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ytkb
 // @namespace    http://violentmonkey.net/
-// @version      0.3
+// @version      0.4
 // @description  Add custom keyboard shortcuts for YouTube navigation with UI feedback and improved controls
 // @match        https://www.youtube.com/*
 // @grant        none
