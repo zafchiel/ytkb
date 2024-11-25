@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ytkb
 // @namespace    http://violentmonkey.net/
-// @version      0.4
+// @version      0.4.1
 // @description  Add custom keyboard shortcuts for YouTube navigation with UI feedback and improved controls
 // @match        https://www.youtube.com/*
 // @grant        none
@@ -278,7 +278,7 @@
 
 function loadVolumeFromLocalStorage() {
   try {
-    const stored = localStorage.getItem("yt-player-colume");
+    const stored = localStorage.getItem("yt-player-volume");
     if (stored) {
       const { data } = JSON.parse(stored);
       return JSON.parse(data);
@@ -299,5 +299,5 @@ function saveVolumeToLocalStorage(volume, muted) {
     expiration: Date.now() + 1000 * 60 * 60 * 24 * 30, // 30 days
     creation: Date.now(),
   };
-  localStorage.setItem("yt-player-colume", JSON.stringify(storageObj));
+  localStorage.setItem("yt-player-volume", JSON.stringify(storageObj));
 }
