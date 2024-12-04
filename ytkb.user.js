@@ -161,7 +161,6 @@
         video.volume = newVolume;
         feedbackMessage = `Volume: ${Math.round(newVolume * 100)}%`;
         state.volume = newVolume;
-        saveVolumeToLocalStorage(newVolume, video.muted);
         break;
       }
       case "k":
@@ -172,7 +171,6 @@
         video.volume = newVolume;
         feedbackMessage = `Volume: ${Math.round(newVolume * 100)}%`;
         state.volume = newVolume;
-        saveVolumeToLocalStorage(newVolume, video.muted);
         break;
       }
       case "l":
@@ -191,7 +189,6 @@
         video.muted = !video.muted;
         feedbackMessage = `Muted: ${video.muted ? "On" : "Off"}`;
         state.muted = video.muted;
-        saveVolumeToLocalStorage(video.volume, video.muted);
         break;
       case ",": // Decrease speed
         video.playbackRate = Math.max(MIN_SPEED, video.playbackRate - 0.25);
@@ -243,17 +240,6 @@
     }
   };
 
-  const storedVolume = loadVolumeFromLocalStorage();
-  if (storedVolume) {
-    const video = getVideo();
-    if (video) {
-      state.volume = storedVolume.volume;
-      state.muted = storedVolume.muted;
-      video.volume = storedVolume.volume;
-      video.muted = storedVolume.muted;
-    }
-  }
-
   // Event listeners
   document.addEventListener("keydown", handleKeydown, {
     capture: true,
@@ -275,29 +261,3 @@
     }
   }, 500);
 })();
-
-function loadVolumeFromLocalStorage() {
-  try {
-    const stored = localStorage.getItem("yt-player-volume");
-    if (stored) {
-      const { data } = JSON.parse(stored);
-      return JSON.parse(data);
-    }
-  } catch (error) {
-    console.error(error);
-  }
-  return null;
-}
-
-function saveVolumeToLocalStorage(volume, muted) {
-  const data = {
-    volume,
-    muted,
-  };
-  const storageObj = {
-    data: JSON.stringify(data),
-    expiration: Date.now() + 1000 * 60 * 60 * 24 * 30, // 30 days
-    creation: Date.now(),
-  };
-  localStorage.setItem("yt-player-volume", JSON.stringify(storageObj));
-}
